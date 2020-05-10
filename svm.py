@@ -3,7 +3,7 @@ import numpy as np
 
 class SVM(object):
 
-    def __init__(self, X, y, var=1.0, learnRate=1, xi=10):
+    def __init__(self, X, y, var=1, learnRate=0.001, xi=10):
         """
         Initializes an empty model
         """
@@ -12,21 +12,22 @@ class SVM(object):
         self.y = y
 
         # initialize a value of alpha that satisfies sum(a.*y) = 0
-        self.alpha = np.random.uniform(size=(X.shape[0]))
-        self.alpha[self.y ==  1] /= np.sum(self.alpha[self.y ==  1])
-        self.alpha[self.y == -1] /= np.sum(self.alpha[self.y == -1])
+        self.alpha = np.zeros(X.shape[0])
+        #self.alpha[self.y ==  1] /= np.sum(self.alpha[self.y ==  1])
+        #self.alpha[self.y == -1] /= np.sum(self.alpha[self.y == -1])
 
         self.var = var
         self.learnRate = learnRate
         self.xi = xi
         self.w0 = 0
-        self.K = self.__rbf(np.matmul(X, X.T))
+        self.K = self.__rbf(X, X)
 
     def train(self, epochs):
         """
         """
         for i in range(epochs):
 
+            #print(self.alpha)
             if(i % 1000 == 0):
                 print(self.__loss())
 
@@ -37,13 +38,11 @@ class SVM(object):
     def predict(self, X0):
         """
         """
-        X0Dots = np.matmul(X0, self.X.T)
-        X0Kern = self.__rbf(X0Dots)
+        X0Kern = self.__rbf(X0, self.X)
 
         ay = np.multiply(self.alpha, self.y)
         ayK = np.multiply(X0Kern, ay)
 
-        #print(np.sum(ayK, axis=1))
         y0 = np.sign( np.sum(ayK, axis=1) + self.w0 )
         return y0
 
@@ -59,10 +58,10 @@ class SVM(object):
         # calc dL/dAlpha
         ay = np.multiply(self.alpha, self.y)
         ayK = np.multiply(self.K, ay)
-        print(ayK)
 
-        dL_dAlpha = np.ones(self.y.shape) - np.multiply(self.y, np.sum(ayK, axis=1))
+        dL_dAlpha = 1.0 - 0.5 * np.multiply(self.y, np.sum(ayK, axis=1))
         dL_dAlpha[dL_dAlpha < 0] = 0
+        dL_dAlpha[dL_dAlpha > 10] = 10
 
         # update alpha and constrain
         self.alpha -= (self.learnRate * dL_dAlpha)
@@ -77,8 +76,10 @@ class SVM(object):
         L = np.sum(self.alpha) - 0.5 * np.sum(ayKMat)
         return L
 
-    def __rbf(self, mat):
+    def __rbf(self, x1, x2):
         """
         applies the rbf kernel to to a given input matrix
         """
-        return np.exp(-1 * mat / self.var)
+        sqMagnitudeFunc = lambda x1Row : np.apply_along_axis(lambda x2Row : np.sum(np.square(x2Row - x1Row)), 1, x2)
+        sqMagnitudeMat = np.apply_along_axis(sqMagnitudeFunc, 1, x1)
+        return np.exp(-1 / 2 * sqMagnitudeMat / self.var)
