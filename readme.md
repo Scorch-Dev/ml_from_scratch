@@ -10,6 +10,15 @@ Where possible, I do try to include the algorithms final output as well. This mi
 
 Some of these were done independently, and thus the data was probably pulled from the UCI database or some comparable open-source platform. Some of these were done with the dual purpose of being used for my university classwork. In that case, often there is no `data` subfolder for an algorithm, and/or the model training file is missing. That's probably because I wasn't comfortable putting it in there because of uncertainty in who owns tge data or because I thought including the whole solution would be a breach of academic integrity (again, mostly only a concern for algorithms that were implemented to serve the dual purpose as sufficing for my university coursework).
 
+# Dependencies
+
+In general all algorithms are implemented from scratch using only numpy, but sometimes I used convenience functions like the k-fold generator from scikit-learn. I also used some graphing facilities from matplotlib for visualiazation.
+
+* python - 3.7.4
+* matplotlib - 3.1
+* numpy - 1.18
+* scikit-learn - 0.22
+
 # Algorithms Implemented
 
 ### Support Vector Machines (svm)
